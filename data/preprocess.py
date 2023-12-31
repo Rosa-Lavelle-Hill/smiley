@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 df = pd.read_csv("Basel_data.csv", sep=';')
 
@@ -38,10 +39,16 @@ df['Minutes'] = df['Minutes'].astype(int)
 # Extract month
 df['Month'] = df['Date'].str.split('-').str[1]
 df['Month'] = df['Month'].astype(int)
+df['Month'].replace({3:'March', 4: 'April', 5: 'May', 6: 'June'}, inplace=True)
 
-# Extract day of month
-df['Day of Month'] = df['Date'].str.split('-').str[2]
-df['Day of Month'] = df['Day of Month'].astype(int)
+# Extract day of week
+def get_day_of_week(date_string):
+    """Function to get day of the week from a date string"""
+    date_object = datetime.strptime(date_string, '%Y-%m-%d')
+    return date_object.strftime('%A')  # Return the day name
+
+# Apply the function to the entire column
+df['Day of Week'] = df['Date'].apply(get_day_of_week)
 
 # Print/plot simple descriptives of IVs
 print(df["ID location"].value_counts())
@@ -50,30 +57,33 @@ print(df["Permanent"].value_counts())
 
 print(df["Speed limit"].value_counts())
 
+plot_save_path = "plots/"
 df['Hour'].plot(kind='hist', bins=20, edgecolor='black')
 plt.xlabel('Hour')
-plt.savefig("hour.png")
+plt.savefig(plot_save_path + "hour.png")
 plt.close()
 
 df['Minutes'].plot(kind='hist', bins=20, edgecolor='black')
 plt.xlabel('Minutes past hour')
-plt.savefig("min.png")
+plt.savefig(plot_save_path + "min.png")
 plt.close()
 
-df['Day of Month'].plot(kind='hist', bins=20, edgecolor='black')
-plt.xlabel('Day of Month')
-plt.savefig("Day_of_month.png")
+df['Day of Week'].value_counts().plot(kind='bar')
+plt.xlabel('Day of Week')
+plt.tight_layout()
+plt.savefig(plot_save_path + "day_of_week.png")
 plt.close()
 
-df['Month'].plot(kind='hist', bins=20, edgecolor='black')
+df['Month'].value_counts().plot(kind='bar')
 plt.xlabel('Month')
-plt.savefig("month.png")
+plt.tight_layout()
+plt.savefig(plot_save_path + "month.png")
 plt.close()
 
 # y
 df['Difference speed'].plot(kind='hist', bins=20, edgecolor='black')
 plt.xlabel('Speed Difference')
-plt.savefig("y.png")
+plt.savefig(plot_save_path + "y_diff.png")
 plt.close()
 
 # create binary y
@@ -85,11 +95,11 @@ print(df['Speeding after'].value_counts())
 df['Speeding after'].value_counts().plot(kind='bar')
 plt.xlabel('Speeding after')
 plt.xticks(rotation=0)
-plt.savefig("y_binary.png")
+plt.savefig(plot_save_path + "y_binary.png")
 plt.close()
 
 # Select IVs + y
-final_variables = ['Street name', 'Speed limit', 'Permanent', 'Hour', 'Minutes', 'Month', 'Day of Month', 'Speeding after']
+final_variables = ['Street name', 'Speed limit', 'Permanent', 'Hour', 'Minutes', 'Month', 'Day of Week', 'Speeding after']
 df = df[final_variables]
 
 # OHE IVs
