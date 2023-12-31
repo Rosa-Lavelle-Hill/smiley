@@ -11,7 +11,6 @@ cols = ['ID Standort', 'Strassenname',
         'Messung Datum', 'Messung Zeit',
        'Einfahrtstempo', 'Ausfahrtstempo', 'Differenztempo', 'Tempolimit',
        'Halterung']
-
 df = df[cols]
 
 # rename columns
@@ -19,14 +18,19 @@ cols_eng = ['ID location', 'Street name',
        'Date', 'Time',
        'Entry speed', 'Exit speed', 'Difference speed', 'Speed limit',
        'Permanent']
-
 df.columns = cols_eng
 
 # find those speeding before
 df = df[df['Entry speed'] > df['Speed limit']]
 
-# select random sample
-df = df.sample(n=10000)
+# create binary y
+df['Speeding after'] = 0
+df['Speeding after'][df['Exit speed'] > df['Speed limit']] = 1
+
+# select random sample stratified by y
+sample_size = 5000
+df = df.groupby('Speeding after', group_keys=False).apply(lambda x: x.sample(min(len(x), sample_size)))
+print(df['Speeding after'].value_counts())
 
 # Extract hour
 df['Hour'] = df['Time'].str.split(':').str[0]
@@ -85,11 +89,6 @@ df['Difference speed'].plot(kind='hist', bins=20, edgecolor='black')
 plt.xlabel('Speed Difference')
 plt.savefig(plot_save_path + "y_diff.png")
 plt.close()
-
-# create binary y
-df['Speeding after'] = 0
-df['Speeding after'][df['Exit speed'] > df['Speed limit']] = 1
-print(df['Speeding after'].value_counts())
 
 # plot y binary
 df['Speeding after'].value_counts().plot(kind='bar')
