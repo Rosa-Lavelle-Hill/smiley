@@ -5,9 +5,6 @@ import matplotlib.pyplot as plt
 
 df = pd.read_csv("Basel_data.csv", sep=';')
 
-# select random sample
-df = df.sample(n=500)
-
 # select columns
 cols = ['ID Standort', 'Strassenname',
         'Messung Datum', 'Messung Zeit',
@@ -23,6 +20,12 @@ cols_eng = ['ID location', 'Street name',
        'Permanent']
 
 df.columns = cols_eng
+
+# find those speeding before
+df = df[df['Entry speed'] > df['Speed limit']]
+
+# select random sample
+df = df.sample(n=1000)
 
 # Extract hour
 df['Hour'] = df['Time'].str.split(':').str[0]
@@ -73,11 +76,38 @@ plt.xlabel('Speed Difference')
 plt.savefig("y.png")
 plt.close()
 
+# create binary y
+df['Speeding after'] = 0
+df['Speeding after'][df['Exit speed'] > df['Speed limit']] = 1
+print(df['Speeding after'].value_counts())
+
+# plot y binary
+df['Speeding after'].value_counts().plot(kind='bar')
+plt.xlabel('Speeding after')
+plt.xticks(rotation=0)
+plt.savefig("y_binary.png")
+plt.close()
+
 # Select IVs + y
-final_variables = ['Street name', 'Speed limit', 'Permanent', 'Hour', 'Minutes', 'Month', 'DoM', 'Difference speed']
+final_variables = ['Street name', 'Speed limit', 'Permanent', 'Hour', 'Minutes', 'Month', 'DoM', 'Speeding after']
 df = df[final_variables]
 
-df.to_csv("data_preprocessed.csv")
+# OHE IVs
+one_hot_encoded = pd.get_dummies(df, columns=df.select_dtypes(include='object').columns)
+
+# change names
+col_list = list(one_hot_encoded.columns)
+new_col_list = [item.split('_')[-1] for item in col_list]
+
+one_hot_encoded.columns = new_col_list
+one_hot_encoded.drop('mobil', axis=1, inplace=True)
+one_hot_encoded.rename(columns={'permanent' : "Permanent"}, inplace=True)
+
+one_hot_encoded = one_hot_encoded.replace({True: 1, False: 0})
+
+one_hot_encoded.to_csv("data_preprocessed.csv")
+
+one_hot_encoded.to_json('data_preprocessed.json', orient='records')
 
 print('done')
 
