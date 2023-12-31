@@ -25,7 +25,7 @@ df.columns = cols_eng
 df = df[df['Entry speed'] > df['Speed limit']]
 
 # select random sample
-df = df.sample(n=1000)
+df = df.sample(n=10000)
 
 # Extract hour
 df['Hour'] = df['Time'].str.split(':').str[0]
@@ -40,8 +40,8 @@ df['Month'] = df['Date'].str.split('-').str[1]
 df['Month'] = df['Month'].astype(int)
 
 # Extract day of month
-df['DoM'] = df['Date'].str.split('-').str[2]
-df['DoM'] = df['DoM'].astype(int)
+df['Day of Month'] = df['Date'].str.split('-').str[2]
+df['Day of Month'] = df['Day of Month'].astype(int)
 
 # Print/plot simple descriptives of IVs
 print(df["ID location"].value_counts())
@@ -60,9 +60,9 @@ plt.xlabel('Minutes past hour')
 plt.savefig("min.png")
 plt.close()
 
-df['DoM'].plot(kind='hist', bins=20, edgecolor='black')
+df['Day of Month'].plot(kind='hist', bins=20, edgecolor='black')
 plt.xlabel('Day of Month')
-plt.savefig("DoM.png")
+plt.savefig("Day_of_month.png")
 plt.close()
 
 df['Month'].plot(kind='hist', bins=20, edgecolor='black')
@@ -89,7 +89,7 @@ plt.savefig("y_binary.png")
 plt.close()
 
 # Select IVs + y
-final_variables = ['Street name', 'Speed limit', 'Permanent', 'Hour', 'Minutes', 'Month', 'DoM', 'Speeding after']
+final_variables = ['Street name', 'Speed limit', 'Permanent', 'Hour', 'Minutes', 'Month', 'Day of Month', 'Speeding after']
 df = df[final_variables]
 
 # OHE IVs
