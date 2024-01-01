@@ -1,4 +1,4 @@
-Seminar on AI: Decision Trees
+**Seminar on (Explainable) AI: Decision Trees**
 
 ![Radar-Activated-Speed-Sign-with-Colour-Pictogram ](https://github.com/Rosa-Lavelle-Hill/smiley/assets/51444424/b86a7941-88a8-402c-85a4-a9ad28289c02)
 
